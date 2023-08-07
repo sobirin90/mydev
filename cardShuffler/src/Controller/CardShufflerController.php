@@ -10,6 +10,13 @@ namespace App\Controller;
  */
 class CardShufflerController extends AppController
 {
+
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('CardShuffler'); // Make sure the alias matches
+    }
+
     /**
      * Index method
      *
@@ -17,9 +24,11 @@ class CardShufflerController extends AppController
      */
     public function index()
     {
-        $this->autoRender = false;
+        $this->autoRender = false; //Disable the view function of Cake, because this function is API
 
-        $numPeople = $this->request->getQuery('numPeople');
+        $numPeople = $this->request->getQuery('numPeople'); //Get input number of people from GET request.
+
+        //Validating input
 
         if (!is_numeric($numPeople) || $numPeople < 0) {
             $this->response = $this->response->withStringBody('Input value does not exist or value is invalid');
@@ -31,46 +40,13 @@ class CardShufflerController extends AppController
             return $this->response;
         }
 
-        $suits = ['S', 'H', 'D', 'C'];
-        $ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+        // Load the CardShuffler component that holds the logic of output
+        $this->loadComponent('CardShuffler');
 
-        $deck = [];
-        foreach ($suits as $suit) {
-            foreach ($ranks as $rank) {
-                $deck[] = $suit . '-' . $rank;
-            }
-        }
+        // Storing output in result variable, run the method shuffleCards at the component to get the output
+        $result = $this->CardShuffler->shuffleCards((int)$numPeople);
 
-        shuffle($deck);
-
-        $result = '';
-        $debugOutput = false; // Set to true for debugging
-
-        do {
-            if ($debugOutput) {
-                $result .= 'Total card left:'. count($deck) . "\n";
-                $result .= 'Total player left:'. $numPeople . "\n";
-            }
-
-            $no_of_cards = ceil(count($deck) / $numPeople);
-
-            if ($debugOutput) {
-                $result .= 'Next player will receive ' . $no_of_cards .  " cards.\n";
-            }
-
-
-            $playercards = array_splice($deck, 0, intval($no_of_cards));
-            if ($debugOutput) {
-                $result .= 'Total cards for next player:'. count($playercards) . "\n";
-            }
-            $result .= implode(',', $playercards) . "\n";
-            $numPeople--;
-        }   while (count($deck) > 0 && $numPeople > 0);
-
-        if ($debugOutput) {
-            $result .= 'Final balance card left(should always be zero):'. count($deck) . "\n";
-        }
-
+        // Process the output as text, and return
         $this->response = $this->response->withType('text/plain');
         $this->response = $this->response->withStringBody($result);
         return $this->response;
