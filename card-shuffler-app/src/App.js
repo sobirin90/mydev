@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import {getCards} from './api';
 
 function App() {
   const [numPeople, setNumPeople] = useState(1);
@@ -11,8 +11,8 @@ function App() {
 
   const handleDistributeClick = async () => {
     try {
-      const response = await axios.get(`http://localhost:8765/cardShuffler?numPeople=${numPeople}`);
-      setCards(response.data);
+      const cardsData = await getCards(numPeople);
+      setCards(cardsData);
     } catch (error) {
       console.error('Error distributing cards:', error);
     }
