@@ -1,0 +1,18 @@
+There are several ways that might improve the given query performance:
+
+1. Indexes. 
+This feature plays huge role in improving query performance. Suggesting to index the columns that are used in 
+JOIN conditions, such as Jobs.id, JobCategories.id, JobTypes.id. Beside that indexing also useful to be implement at column
+that are used in the WHERE clause, such as publish_status, Jobs.deleted etc. We can also do indexing at the columns used in the ORDER BY, to improve sorting.
+
+2. Use EXISTS replacing LEFT JOIN.
+If there is particular query that specify records that matched certain criteria, we should use EXISTS on those, as it is more efficient than LEFT JOIN
+
+3. LIMIT clause
+Fetch a large number of records with LIMIT and OFFSET should be resource intensive. Instead, try lower down the each of the page number per page load, or better apply lazy load to fetch maximum 10 record per request(scroll down).
+
+4. Optimizing LIKE statement
+The use of LIKE consist of wildcard statement '%' which actually can turn query to be slow, especially at the beginning of pattern. Consider using Auto Complete list as prediction of the input, so that when user click it, it will straight execute the query using '=' instead of LIKE.
+
+5. Never use SELECT *
+Yes, the query given didn't include this, but actually SELECT to view quite number of columns. With JOINS, we can also utilize VIEW to combine several SELECT statement, instead we do the actual SELECT in one query. Multiple and combined short queries are always better, then one long and complex query.
